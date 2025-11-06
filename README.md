@@ -1,4 +1,4 @@
-# QCX Terra Model Fine-Tuning and Deployment
+# QCX-Terra Cloud Model Fine-Tuning and Deployment
 
 This repository contains a complete workflow for fine-tuning, deploying, and scoring the TerraMind model, a powerful geospatial foundation model. The process leverages Azure Machine Learning for robust deployment and management.
 
