@@ -1,0 +1,39 @@
+# terramind_config.yaml
+model:
+  _target_: terratorch.models.backbones.terramind_v1_base_tim  # Use _tim for Thinking-in-Modalities
+  pretrained: true
+  modalities: ['S2L2A']  # Input modalities (add 'S1GRD' if using)
+  tim_modalities: ['LULC']  # Target for fine-tune (land-use land-cover)
+  timesteps: 10  # For generation; ignore for backbone
+  standardize: true
+
+data:
+  _target_: terratorch.data.terramind_datamodule.TerraMindDataModule
+  train_path: ./data/train/  # Folder with .tif files (paired S2L2A + LULC labels)
+  val_path: ./data/val/
+  batch_size: 4  # Adjust for GPU memory
+  num_workers: 4
+  modalities: ['S2L2A']
+  bands:  # Subset bands if needed
+    S2L2A: ['B2', 'B3', 'B4', 'B8', 'B11', 'B12']  # BLUE, GREEN, RED, NIR, SWIR1, SWIR2
+  target_size: [224, 224]
+  tim_modalities: ['LULC']
+
+trainer:
+  accelerator: gpu
+  devices: 1
+  max_epochs: 5  # Start small
+  precision: 16-mixed  # For efficiency
+  log_every_n_steps: 10
+
+callbacks:
+  model_checkpoint:
+    _target_: pytorch_lightning.callbacks.ModelCheckpoint
+    monitor: val_loss
+    mode: min
+    save_top_k: 1
+    filename: 'terramind-finetuned-{epoch:02d}-{val_loss:.2f}'
+
+logger:
+  _target_: pytorch_lightning.loggers.TensorBoardLogger
+  save_dir: ./logs/
