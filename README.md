@@ -10,6 +10,7 @@ The workflow consists of the following key stages:
 2.  **Fine-Tuning (Placeholder)**: A script `finetune_job.py` is included, but the implementation is currently empty. This is where you would add your custom fine-tuning logic using PyTorch Lightning.
 3.  **Conversion to ONNX**: Converting the fine-tuned model to the ONNX format for optimized inference using `convert_to_onnx.py`.
 4.  **Deployment**: Deploying the ONNX model as a managed online endpoint in Azure Machine Learning using `deploy.py`.
+5.  **Inference**: Sending data to the deployed endpoint and receiving predictions, as demonstrated in `score.py` and `Test.py`.
 
 ## Getting Started
 
@@ -121,7 +122,9 @@ python deploy.py
 
 ## Inference
 
+The `score.py` script is the entry point for the deployed model. It defines how to load the model and process incoming requests. The `Test.py` script shows an example of how to send a request to the deployed endpoint.
 
+### `score.py`
 
 *   **`init()`**: This function is called when the service starts. It loads the model and sets it to evaluation mode.
 *   **`run(raw_data)`**: This function is called for each incoming request. It decodes the base64-encoded tensor from the JSON payload, runs the model, and returns the embeddings.
