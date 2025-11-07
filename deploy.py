@@ -6,7 +6,7 @@ from azure.ai.ml.entities import (
     Environment,
     ManagedOnlineEndpoint,
     ManagedOnlineDeployment,
-    CodeConfiguration,
+    # CodeConfiguration, # Removed as MLflow model deployment doesn't need it
 )
 from azure.identity import DefaultAzureCredential
 
@@ -50,25 +50,24 @@ print("Conversion job finished. ONNX files are in the job output.")
 # The conversion job outputs to `azureml://jobs/<job_name>/outputs/artifacts/paths/onnx_model`
 # Grab the latest job run name from the UI or via:
 #   ml_client.jobs.list(parent_job_name="onnx-conversion")[-1].name
-JOB_RUN_NAME = "<latest-conversion-job-run-name>"   # <-- replace
+# The model is now registered by convert_to_onnx.py as an MLflow model.
+# We just need to get the latest version of the registered model.
+MODEL_NAME = "terramind-onnx-model" # Must match the name in convert_to_onnx.py
 
-model = Model(
-    path=f"azureml://jobs/{JOB_RUN_NAME}/outputs/artifacts/paths/onnx_model",
-    name="hf-onnx-model",
-    description="ONNX export of HF model",
-    type="custom_model"
-)
-registered_model = ml_client.models.create_or_update(model)
-print(f"Model registered: {registered_model.id}")
+# Get the latest version of the MLflow model
+registered_model = ml_client.models.get(name=MODEL_NAME, version="latest")
+print(f"Using MLflow Model: {registered_model.id}")
 
 # --------------------------------------------------------------
-# 3. Define environment (conda or Docker)
+# 3. Define environment (MLflow models use a curated environment)
 # --------------------------------------------------------------
-env = Environment(
-    name="hf-onnx-env",
-    conda_file="conda.yaml",
-    image="mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04"
-)
+# MLflow models are deployed using a curated environment, so we don't need to define a custom one.
+# We will use the built-in MLflow ONNX environment.
+# env = Environment(
+#     name="hf-onnx-env",
+#     conda_file="conda.yaml",
+#     image="mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04"
+# )
 
 # --------------------------------------------------------------
 # 4. Create endpoint
@@ -87,11 +86,7 @@ deployment = ManagedOnlineDeployment(
     name=DEPLOYMENT_NAME,
     endpoint_name=ENDPOINT_NAME,
     model=registered_model,
-    environment=env,
-    code_configuration=CodeConfiguration(
-        code="./",                 # local folder with score.py
-        scoring_script="score.py"
-    ),
+    # MLflow models use a curated environment and do not require code_configuration
     instance_type=INSTANCE_TYPE,
     instance_count=1
 )
