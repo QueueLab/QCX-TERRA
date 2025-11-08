@@ -12,7 +12,7 @@ from mlflow.models.signature import infer_signature
 # ------------------------------------------------------------------
 # USER SETTINGS – edit these
 # ------------------------------------------------------------------
-MODEL_ID = "distilbert-base-uncased-finetuned-sst-2-english"   # <-- your HF repo
+MODEL_ID = "ibm-esa-geospatial/TerraMind-1.0-base"   # <-- your HF repo
 OUTPUT_DIR = Path("onnx_model")
 OPSET = 14
 # ------------------------------------------------------------------

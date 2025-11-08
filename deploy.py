@@ -10,10 +10,11 @@ from azure.ai.ml.entities import (
 )
 from azure.identity import DefaultAzureCredential
 
+
 # ------------------------------------------------------------------
 # USER SETTINGS – fill these
 # ------------------------------------------------------------------
-SUBSCRIPTION_ID = "<your-subscription-id>"
+SUBSCRIPTION_ID = os.getenv("SUBSCRIPTION_ID")
 RESOURCE_GROUP   = "<your-resource-group>"
 WORKSPACE_NAME   = "<your-aml-workspace>"
 COMPUTE_NAME     = "<your-compute-cluster>"   # for conversion job
