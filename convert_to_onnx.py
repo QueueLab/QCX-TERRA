@@ -3,7 +3,7 @@ import os
 import sys
 from pathlib import Path
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from transformers.onnx import export
+from transformers.onnx import export, FeaturesManager
 import mlflow
 import mlflow.onnx
 from mlflow.models.signature import infer_signature
@@ -82,11 +82,18 @@ def main():
                 # Set model to evaluation mode
                 model.eval()
                 
+                # Get proper ONNX configuration
+                _, onnx_config_cls = FeaturesManager.check_supported_model_or_raise(
+                    model,
+                    feature="sequence-classification",
+                )
+                onnx_config = onnx_config_cls(model.config)
+                
                 # Export to ONNX
                 export(
                     preprocessor=tokenizer,
                     model=model,
-                    config="default",
+                    config=onnx_config,
                     opset=OPSET,
                     output=onnx_path
                 )
@@ -118,8 +125,9 @@ def main():
                     dummy_output = model(**dummy_input)
                 
                 # Convert output to dictionary format for signature
+                # Use detach().cpu() for safe tensor conversion
                 output_dict = {
-                    "logits": dummy_output.logits.numpy()
+                    "logits": dummy_output.logits.detach().cpu().numpy()
                 }
                 
                 # Infer signature

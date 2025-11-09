@@ -150,7 +150,7 @@ curl -X POST "$SCORING_URI" \
 
 ## Project Structure
 
-```
+```text
 qcx-terra/
 ├── deploy.py              # Main deployment script
 ├── deploy.bash            # Automated setup and deployment

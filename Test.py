@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """
 Test script for TerraMind ONNX endpoint deployed on Azure ML.
+
+Note: This model is a sequence classification model that expects text input,
+not geospatial tensor data. For geospatial inference, a custom scoring script
+would be needed.
 """
 import os
 import sys
 import json
-import base64
 import requests
-import numpy as np
 
 
 def load_endpoint_config():
@@ -45,19 +47,19 @@ def load_endpoint_config():
 
 
 def create_test_payload():
-    """Create a test payload with dummy tensor data."""
-    # Create dummy tensor (6 bands for Sentinel-2 L2A)
-    # Shape: (batch_size, channels, height, width)
-    dummy_tensor = np.random.rand(1, 6, 224, 224).astype(np.float32)
+    """Create a test payload for sequence classification model."""
+    # The model expects text input for sequence classification
+    # This is compatible with the HuggingFace model deployed
+    test_samples = [
+        "This is a test sentence for model inference.",
+        "Another example text for classification.",
+        "The model will classify these text inputs."
+    ]
     
-    # Encode tensor as base64
-    tensor_b64 = base64.b64encode(dummy_tensor.tobytes()).decode()
-    
-    # Create payload
+    # Create payload in the format expected by MLflow ONNX models
+    # For sequence classification, we send text data
     payload = {
-        "S2L2A": tensor_b64,
-        "shape": list(dummy_tensor.shape),
-        "dtype": str(dummy_tensor.dtype)
+        "inputs": test_samples
     }
     
     return json.dumps(payload)
@@ -74,7 +76,8 @@ def test_endpoint(scoring_uri: str, key: str):
     # Create test payload
     print("\nCreating test payload...")
     payload = create_test_payload()
-    print(f"✓ Payload created (size: {len(payload)} bytes)")
+    print(f"✓ Payload created")
+    print(f"  Sample input: {json.loads(payload)['inputs'][0]}")
     
     # Set up headers
     headers = {
@@ -113,11 +116,17 @@ def test_endpoint(scoring_uri: str, key: str):
     print("\n" + "=" * 70)
     print("Test completed successfully!")
     print("=" * 70)
+    print("\nNote: This model performs sequence classification on text input.")
+    print("For geospatial tensor inference, you would need to:")
+    print("  1. Deploy a model trained for geospatial data")
+    print("  2. Create a custom scoring script")
+    print("  3. Update the payload format accordingly")
 
 
 def main():
     """Main function."""
     print("TerraMind ONNX Endpoint Test Script")
+    print("\nNote: Testing sequence classification model with text input")
     
     # Load configuration
     config = load_endpoint_config()

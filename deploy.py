@@ -81,22 +81,17 @@ print("Step 1: Creating Azure ML Environment")
 print("=" * 70)
 
 try:
-    # Check if environment already exists
-    try:
-        existing_env = ml_client.environments.get(name=ENVIRONMENT_NAME, version="1")
-        print(f"✓ Environment '{ENVIRONMENT_NAME}' already exists, using existing version")
-    except ResourceNotFoundError:
-        print(f"Creating new environment '{ENVIRONMENT_NAME}'...")
-        
-        # Create environment from conda file
-        env = Environment(
-            name=ENVIRONMENT_NAME,
-            description="Environment for HuggingFace to ONNX conversion",
-            conda_file="conda.yaml",
-            image="mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04:latest"
-        )
-        ml_client.environments.create_or_update(env)
-        print(f"✓ Environment '{ENVIRONMENT_NAME}' created successfully")
+    # Create or update environment (idempotent operation)
+    print(f"Creating/updating environment '{ENVIRONMENT_NAME}'...")
+    
+    env = Environment(
+        name=ENVIRONMENT_NAME,
+        description="Environment for HuggingFace to ONNX conversion",
+        conda_file="conda.yaml",
+        image="mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04:latest"
+    )
+    ml_client.environments.create_or_update(env)
+    print(f"✓ Environment '{ENVIRONMENT_NAME}' ready")
 except Exception as e:
     print(f"ERROR: Failed to create environment: {e}")
     sys.exit(1)
@@ -145,7 +140,7 @@ print("Step 3: Retrieving Registered Model")
 print("=" * 70)
 
 try:
-    registered_model = ml_client.models.get(name=MODEL_NAME, label="latest")
+    registered_model = ml_client.models.get(name=MODEL_NAME, version="latest")
     print(f"✓ Found registered model: {registered_model.name}")
     print(f"  Version: {registered_model.version}")
     print(f"  Model ID: {registered_model.id}")
@@ -222,10 +217,10 @@ try:
     
     print(f"\nEndpoint Name: {ENDPOINT_NAME}")
     print(f"Scoring URI: {endpoint.scoring_uri}")
-    print(f"Primary Key: {keys.primary_key}")
+    print(f"Primary Key: {keys.primary_key[:8]}...{keys.primary_key[-4:]} (masked)")
     print(f"\nTo test the endpoint, update Test.py with:")
     print(f'  scoring_uri = "{endpoint.scoring_uri}"')
-    print(f'  key = "{keys.primary_key}"')
+    print(f'  key = "<see endpoint_details.txt>"')
     print("\nThen run: python Test.py")
     
     # Save endpoint details to file

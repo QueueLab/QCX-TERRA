@@ -68,25 +68,25 @@ echo ""
 
 # Get subscription ID
 if [ -z "$AZURE_SUBSCRIPTION_ID" ]; then
-    read -p "Azure Subscription ID: " AZURE_SUBSCRIPTION_ID
+    read -r -p "Azure Subscription ID: " AZURE_SUBSCRIPTION_ID
     export AZURE_SUBSCRIPTION_ID
 fi
 
 # Get resource group
 if [ -z "$AZURE_RESOURCE_GROUP" ]; then
-    read -p "Azure Resource Group: " AZURE_RESOURCE_GROUP
+    read -r -p "Azure Resource Group: " AZURE_RESOURCE_GROUP
     export AZURE_RESOURCE_GROUP
 fi
 
 # Get workspace name
 if [ -z "$AZURE_WORKSPACE_NAME" ]; then
-    read -p "Azure ML Workspace Name: " AZURE_WORKSPACE_NAME
+    read -r -p "Azure ML Workspace Name: " AZURE_WORKSPACE_NAME
     export AZURE_WORKSPACE_NAME
 fi
 
 # Get compute name
 if [ -z "$AZURE_COMPUTE_NAME" ]; then
-    read -p "Azure ML Compute Cluster Name: " AZURE_COMPUTE_NAME
+    read -r -p "Azure ML Compute Cluster Name: " AZURE_COMPUTE_NAME
     export AZURE_COMPUTE_NAME
 fi
 
